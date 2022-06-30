@@ -1,4 +1,25 @@
+use clap::Parser;
 use std::{fmt, fs::File, io::Read};
+
+// Parsing command line arguments
+#[derive(Parser)]
+pub struct Cli {
+    /// Player X
+    #[clap(short = 'x', long = "player-x")]
+    pub player_x: String,
+    /// Player O
+    #[clap(short = 'o', long = "player-o")]
+    pub player_o: String,
+}
+
+/// Available players
+pub enum Player {
+    Human,
+    Easy,
+    Medium,
+    Hard,
+    Unbeatable, // TODO: Implement unbeatable AI
+}
 
 #[derive(Debug, Clone)]
 struct Cell {
@@ -30,7 +51,17 @@ impl fmt::Display for CellState {
     }
 }
 
-#[derive(Debug)]
+impl CellState {
+    pub fn opposite(self) -> CellState {
+        match self {
+            CellState::X => CellState::O,
+            CellState::O => CellState::X,
+            CellState::Empty => CellState::Empty,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
 pub struct Board {
     cells: Vec<Cell>,
 }
@@ -42,7 +73,7 @@ impl Board {
         }
     }
 
-    fn load_from_file(filename: &str) -> Board {
+    pub fn load_from_file(filename: &str) -> Board {
         let mut board = Board::new();
         let mut file = File::open(filename).unwrap();
         let mut contents = String::new();
@@ -65,12 +96,6 @@ impl Board {
 
     pub fn set_cell(&mut self, index: usize, cell_state: CellState) {
         self.cells[index].cell_state = cell_state;
-    }
-
-    fn clone(&self) -> Board {
-        Board {
-            cells: self.cells.clone(),
-        }
     }
 
     /// Get the winner of the game
@@ -124,6 +149,7 @@ impl Board {
 
 /// Renders the board onto the terminal
 pub fn render(board: &Board) {
+    println!();
     println!("    0 | 1 | 2 ");
     println!("  +---+---+---+");
     println!(
@@ -151,7 +177,7 @@ pub fn render(board: &Board) {
 }
 
 /// Get the player's move from the user
-pub fn get_player_move(player_turn: CellState) -> (usize, usize) {
+pub fn get_player_move(_board: &Board, player_turn: CellState) -> (usize, usize) {
     println!("Player {}'s move ", player_turn);
 
     // Get Y coordinate of the move
@@ -173,7 +199,7 @@ pub fn get_player_move(player_turn: CellState) -> (usize, usize) {
 
 /// Executes the move on the board
 pub fn make_move(board: Board, move_coord: (usize, usize), player: CellState) -> Board {
-    let mut new_board: Board = board.clone();
+    let mut new_board: Board = Board::clone(&board);
     let index: usize = move_coord.0 + move_coord.1 * 3;
     new_board.set_cell(index, player);
     new_board
