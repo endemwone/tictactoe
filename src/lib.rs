@@ -2,6 +2,7 @@ use clap::Parser;
 use std::{fmt, fs::File, io::Read};
 
 // Parsing command line arguments
+/// A rusty implementation of Tic Tac Toe.
 #[derive(Parser)]
 pub struct Cli {
     /// Player X
@@ -10,6 +11,9 @@ pub struct Cli {
     /// Player O
     #[clap(short = 'o', long = "player-o")]
     pub player_o: String,
+    /// No. of times to play
+    #[clap(default_value_t = 1, short = 'n')]
+    pub repeat: u32,
 }
 
 /// Available players
