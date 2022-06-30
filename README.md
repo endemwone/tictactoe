@@ -10,6 +10,12 @@ Enter the required player against the player option.
 
 You should specify both players.
 
+You could specify a number for `-n` and watch the program repeat the game
+for that number of times. There is a nice output which shows the number of
+wins by each player and shows the percentage of wins by each player and
+the draws. Pit different AIs against each other and watch those statistics
+change.
+
 ## Players
 
 `human` => Human player
