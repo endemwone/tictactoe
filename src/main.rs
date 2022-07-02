@@ -1,34 +1,7 @@
-// Rust implementation of Tic Tac Toe
-//
-// # Usage
-//
-// Enter the required player against the player option.
-//
-// `-x` or `--player_x` for player X.
-//
-// `-o` or `--player_o` for player O.
-//
-// The player options are optional. If not specified, the program will pit you
-// against a computer with random difficulty. (TODO)
-//
-// You should specify both players.
-//
-// ## Players
-//
-// `human` => Human player
-//
-// `easy` => Level 1: AI that makes random moves
-//
-// `medium` => Level 2: AI that finds the available winning moves
-//
-// `hard` => Level 3: AI that finds the available winning and losing moves
-//
-// `unbeatable` => Level 4: AI that makes perfect moves
-
 use clap::Parser;
 
-use ai::{finds_winning_and_losing_moves_ai, finds_winning_moves_ai, random_ai};
-use tictactoe::{get_player_move, is_valid_move, make_move, render, Board, CellState, Cli, Player};
+use ai::{finds_winning_and_losing_moves_ai, finds_winning_moves_ai, minimax_ai, random_ai};
+use tictactoe::{get_player_move, make_move, render, Board, CellState, Cli, Player};
 
 mod ai;
 
@@ -50,8 +23,7 @@ fn main() {
         "easy" => Ok(Player::Easy),
         "medium" => Ok(Player::Medium),
         "hard" => Ok(Player::Hard),
-        // TODO: Implement unbeatable AI
-        // "unbeatable" => Ok(Player::Unbeatable),
+        "unbeatable" => Ok(Player::Unbeatable),
         _ => Err("Invalid player.".to_string()),
     }
     .unwrap();
@@ -79,20 +51,14 @@ fn main() {
                         Player::Easy => Ok(random_ai(&board, player_turn)),
                         Player::Medium => Ok(finds_winning_moves_ai(&board, player_turn)),
                         Player::Hard => Ok(finds_winning_and_losing_moves_ai(&board, player_turn)),
-                        // "unbeatable" => {
-                        //     unbeatable_ai(&board, player_turn)
-                        // }
-                        _ => Err("Invalid player."),
+                        Player::Unbeatable => Ok(minimax_ai(&board, player_turn)),
                     },
                     CellState::O => match player_o {
                         Player::Human => Ok(get_player_move(&board, player_turn)),
                         Player::Easy => Ok(random_ai(&board, player_turn)),
                         Player::Medium => Ok(finds_winning_moves_ai(&board, player_turn)),
                         Player::Hard => Ok(finds_winning_and_losing_moves_ai(&board, player_turn)),
-                        // "unbeatable" => {
-                        //     unbeatable_ai(&board, player_turn)
-                        // }
-                        _ => Err("Invalid player."),
+                        Player::Unbeatable => Ok(minimax_ai(&board, player_turn)),
                     },
                     CellState::Empty => {
                         // Shouldn't happen, but rust won't leave me alone.
@@ -101,7 +67,7 @@ fn main() {
                 }
                 .unwrap();
 
-                if is_valid_move(&board, move_coord) {
+                if board.is_valid_move(move_coord) {
                     break;
                 } else {
                     println!("Invalid move! Try again");
@@ -109,7 +75,7 @@ fn main() {
                 }
             }
 
-            board = make_move(board, move_coord, player_turn);
+            board = make_move(&board, move_coord, player_turn);
             render(&board);
 
             let winner: Option<CellState> = board.get_winner();

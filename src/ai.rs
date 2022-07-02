@@ -1,4 +1,4 @@
-use tictactoe::{Board, CellState};
+use tictactoe::{make_move, Board, CellState};
 
 use rand::seq::SliceRandom;
 
@@ -71,6 +71,74 @@ pub fn finds_winning_and_losing_moves_ai(board: &Board, player_turn: CellState) 
 
     // Returns random move
     random_ai(board, player_turn)
+}
+
+/// Returns the score using minimax algorithm
+fn minimax_score(board: &Board, player_turn: CellState, player_to_optimize: CellState) -> i32 {
+    let winner = board.get_winner().unwrap_or_else(|| CellState::Empty);
+
+    if winner == player_to_optimize {
+        return 10;
+    } else if winner == player_to_optimize.opposite() {
+        return -10;
+    } else if board.is_full() {
+        return 0;
+    } else {
+        // If board is not in a terminal state,
+        // get all the moves that can be played.
+
+        let legal_moves = board.get_legal_moves();
+
+        // Iterate through these moves, calculating a score
+        // for each one and adding it to the `scores` array.
+        let mut scores: Vec<i32> = Vec::new();
+
+        for index in legal_moves {
+            let move_coord = (index % 3, index / 3);
+
+            // Create a copy of the board and make the move.
+            let mut new_board = Board::clone(board);
+            new_board = make_move(&new_board, move_coord, player_turn);
+
+            // Get the minimax score for the resulting state,
+            // passing in current player's opponent because
+            // it's their turn now.
+            let opponent = player_turn.opposite();
+            let opponent_best_response_score =
+                minimax_score(&new_board, opponent, player_to_optimize);
+            scores.push(opponent_best_response_score);
+        }
+
+        if player_turn == player_to_optimize {
+            return *scores.iter().max().unwrap();
+        } else {
+            return *scores.iter().min().unwrap();
+        }
+    }
+}
+
+/// The unbeatable AI using minimax algorithm.
+pub fn minimax_ai(board: &Board, player_turn: CellState) -> (usize, usize) {
+    let mut best_move: Option<(usize, usize)> = None;
+    let mut best_score: Option<i32> = None;
+
+    let legal_moves = board.get_legal_moves();
+
+    for index in legal_moves {
+        let move_coord = (index % 3, index / 3);
+
+        let mut new_board = Board::clone(board);
+        new_board = make_move(&new_board, move_coord, player_turn);
+
+        let opponent = player_turn.opposite();
+        let score = minimax_score(&new_board, opponent, player_turn);
+        if best_score == None || score > best_score.unwrap() {
+            best_move = Some(move_coord);
+            best_score = Some(score);
+        }
+    }
+
+    best_move.unwrap()
 }
 
 #[cfg(test)]

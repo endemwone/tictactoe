@@ -56,6 +56,7 @@ impl fmt::Display for CellState {
 }
 
 impl CellState {
+    /// Returns the opponent
     pub fn opposite(self) -> CellState {
         match self {
             CellState::X => CellState::O,
@@ -149,6 +150,32 @@ impl Board {
         }
         true
     }
+
+    /// Get legal moves for the player
+    pub fn get_legal_moves(&self) -> Vec<usize> {
+        let mut legal_moves: Vec<usize> = vec![];
+        for index in 0..9 {
+            if self.get_cell(index) == CellState::Empty {
+                legal_moves.push(index);
+            }
+        }
+        legal_moves
+    }
+
+    /// Checks if the move is valid
+    /// i.e. the cell is empty and the move is within the board
+    ///
+    /// Returns true if the move is valid, false otherwise
+    pub fn is_valid_move(&self, move_coord: (usize, usize)) -> bool {
+        let index: usize = move_coord.0 + move_coord.1 * 3;
+        if move_coord.0 > 2 || move_coord.1 > 2 {
+            return false;
+        }
+        if self.get_cell(index) == CellState::Empty {
+            return true;
+        }
+        false
+    }
 }
 
 /// Renders the board onto the terminal
@@ -202,26 +229,11 @@ pub fn get_player_move(_board: &Board, player_turn: CellState) -> (usize, usize)
 }
 
 /// Executes the move on the board
-pub fn make_move(board: Board, move_coord: (usize, usize), player: CellState) -> Board {
+pub fn make_move(board: &Board, move_coord: (usize, usize), player: CellState) -> Board {
     let mut new_board: Board = Board::clone(&board);
     let index: usize = move_coord.0 + move_coord.1 * 3;
     new_board.set_cell(index, player);
     new_board
-}
-
-/// Checks if the move is valid
-/// i.e. the cell is empty and the move is within the board
-///
-/// Returns true if the move is valid, false otherwise
-pub fn is_valid_move(board: &Board, move_coord: (usize, usize)) -> bool {
-    let index: usize = move_coord.0 + move_coord.1 * 3;
-    if move_coord.0 > 2 || move_coord.1 > 2 {
-        return false;
-    }
-    if board.get_cell(index) == CellState::Empty {
-        return true;
-    }
-    false
 }
 
 #[cfg(test)]
