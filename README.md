@@ -29,12 +29,11 @@ change.
 `unbeatable` => Level 4: AI that makes perfect moves
 
 The unbeatable AI takes 5-10s to calculate its move since it is using
-minimax algorithm. The lag will be eradicated in a future release.
+minimax algorithm. The lag is now reduced to 3-5s by caching the
+results.
 
 Have fun playing against each other or pit the AIs against each other
 and watch the results.
 
 ### TODO
-
-* Speed up the unbeatable AI.
 * Networking implementation (Playing with each other through TCP)
