@@ -176,6 +176,18 @@ impl Board {
         }
         false
     }
+
+    pub fn as_string(&self) -> String {
+        let mut board_str = String::new();
+        for index in 0..9 {
+            match self.get_cell(index) {
+                CellState::Empty => board_str.push(' '),
+                CellState::X => board_str.push('X'),
+                CellState::O => board_str.push('O'),
+            };
+        }
+        board_str
+    }
 }
 
 /// Renders the board onto the terminal

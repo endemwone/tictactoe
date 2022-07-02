@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use tictactoe::{make_move, Board, CellState};
 
 use rand::seq::SliceRandom;
@@ -117,6 +119,26 @@ fn minimax_score(board: &Board, player_turn: CellState, player_to_optimize: Cell
     }
 }
 
+/// Caching minimax algorithm implementation for faster iteration.
+fn minimax_score_with_cache(
+    board: &Board,
+    player_turn: CellState,
+    player_to_optimize: CellState,
+) -> i32 {
+    let mut minimax_cache = HashMap::<String, i32>::new();
+
+    // Produce unique hash key
+    let board_cache_key = board.as_string();
+
+    // Only calculate the score if the board
+    // is not in the cache.
+    minimax_cache
+        .entry(board_cache_key.clone())
+        .or_insert(minimax_score(board, player_turn, player_to_optimize));
+
+    *minimax_cache.get(&board_cache_key.clone()).unwrap()
+}
+
 /// The unbeatable AI using minimax algorithm.
 pub fn minimax_ai(board: &Board, player_turn: CellState) -> (usize, usize) {
     let mut best_move: Option<(usize, usize)> = None;
@@ -131,7 +153,8 @@ pub fn minimax_ai(board: &Board, player_turn: CellState) -> (usize, usize) {
         new_board = make_move(&new_board, move_coord, player_turn);
 
         let opponent = player_turn.opposite();
-        let score = minimax_score(&new_board, opponent, player_turn);
+        // let score = minimax_score(&new_board, opponent, player_turn);
+        let score = minimax_score_with_cache(&new_board, opponent, player_turn);
         if best_score == None || score > best_score.unwrap() {
             best_move = Some(move_coord);
             best_score = Some(score);
