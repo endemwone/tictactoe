@@ -26,12 +26,15 @@ change.
 
 `hard` => Level 3: AI that finds the available winning and losing moves
 
-`unbeatable` => Level 4: AI that makes perfect moves (TODO)
+`unbeatable` => Level 4: AI that makes perfect moves
 
+The unbeatable AI takes 5-10s to calculate its move since it is using
+minimax algorithm. The lag will be eradicated in a future release.
 
 Have fun playing against each other or pit the AIs against each other
 and watch the results.
 
 ### TODO
 
+* Speed up the unbeatable AI.
 * Networking implementation (Playing with each other through TCP)
